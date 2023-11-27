@@ -306,6 +306,18 @@ def main(user_input_file):
 
         # available memory, threads/CPUs, and 'Mac' or 'Linux' (no Windows)
         THREADS, MEMORY, OS = toolshed.get_threads_memory()
+        logging.info('#' * 100)
+        logging.info(" Resources found as: ")
+        logging.info(f"  Threads: {THREADS}")
+        logging.info(f"  Memory: {MEMORY}")
+        logging.info("\n")
+        
+        THREADS, MEMORY = "12", "64"
+        
+        logging.info(" Manual code edit to set resources to the following:")
+        logging.info(f"  Threads: {THREADS}")
+        logging.info(f"  Memory: {MEMORY}")
+        logging.info("\n")
 
         # unpacking job info
         initials, sp_abbr, isolate, raw_reads_1, raw_reads_2, lo_metadata = job
