@@ -248,6 +248,8 @@ def main(user_input_file):
     """
     
     # keep a log of all events
+    print('Starting analysis')
+    print(' and setting up logging')
     start_logging()
     
     # read user input from a TXT file
