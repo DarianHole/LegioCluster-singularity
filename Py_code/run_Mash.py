@@ -169,13 +169,22 @@ def run_mash_sketch(active_folder, work_dir, out_file, in_data,
     #   by a ' ', e.g.: 'mash sketch -o outfile Lpn.fa Tmi.fa. Eco.fa'    
     lo_files = ' '.join(in_data)
     
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-              + '-v "' + active_folder\
-              + ':' + Mash_WorkingDir + '" '\
-              + '-i ' + Mash_image + ' mash sketch '\
-              + param\
-              + '-o ' + out_file + ' '\
-              + lo_files
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #           + '-v "' + active_folder\
+    #           + ':' + Mash_WorkingDir + '" '\
+    #           + '-i ' + Mash_image + ' mash sketch '\
+    #           + param\
+    #           + '-o ' + out_file + ' '\
+    #           + lo_files
+    
+    run_dir = active_folder
+    base_cmd = (
+        f'mash sketch '
+        f'{param} '
+        f'-o {out_file} '
+        f'{lo_files}'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Mash_image, base_cmd)
 
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True)
     
@@ -197,11 +206,17 @@ def run_mash_info(active_folder, work_dir, out_file):
 
     print('\nrunning: Mash info')
 
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + active_folder\
-            + ':' + Mash_WorkingDir + '" '\
-            + '-i ' + Mash_image + ' mash info '\
-            + out_file
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + active_folder\
+    #         + ':' + Mash_WorkingDir + '" '\
+    #         + '-i ' + Mash_image + ' mash info '\
+    #         + out_file
+    
+    run_dir = active_folder
+    base_cmd = (
+        f'mash info {out_file}'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Mash_image, base_cmd)
 
     # look up the genomes present in the .msh file and print to the log file    
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True)
@@ -226,13 +241,22 @@ def run_mash_dist(work_dir, ref_msh_file, query_msh_file, suffix):
 
     print('\nrunning: Mash dist')
 
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + BASE_PATH\
-            + ':' + Mash_WorkingDir + '" '\
-            + '-i ' + Mash_image + ' mash dist '\
-            + ref_msh_file + ' ' + query_msh_file + ' '\
-            + '> ' + BASE_PATH + TEMP_dir + work_dir + 'distances_'\
-            + suffix + '.tab'
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + BASE_PATH\
+    #         + ':' + Mash_WorkingDir + '" '\
+    #         + '-i ' + Mash_image + ' mash dist '\
+    #         + ref_msh_file + ' ' + query_msh_file + ' '\
+    #         + '> ' + BASE_PATH + TEMP_dir + work_dir + 'distances_'\
+    #         + suffix + '.tab'
+    
+    run_dir = BASE_PATH
+    base_cmd = (
+        f'mash dist '
+        f'{ref_msh_file} '
+        f'{query_msh_file} '
+        f'> {BASE_PATH + TEMP_dir + work_dir}distances_{suffix}.tab'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Mash_image, base_cmd)
     
     print('\n## Running:\n', command, '\n')    
     # execute 'mash dist' and write results to file

@@ -75,40 +75,41 @@ def get_DO_IMAGES():
   
 ## latest images, no warranty that they will all work
 #    DO_IMAGES = {
-#	          'BCFtools'     : ['biocontainers/bcftools:v1.9-1-deb_cv1',   '/data'],
-#	          'BWA'          : ['staphb/bwa',                              '/data'],
-#	          'FastQC'       : ['staphb/fastqc:0.11.8',                    '/data'],
-#	          'Freebayes'    : ['wgspipeline/freebayes:v0.0.1',            '/data" -w "/data'],
-#	          'Kraken'       : ['staphb/kraken:1.1.1',                     '/data'],
-#	          'Mash'         : ['staphb/mash:2.2',                         '/data'],
-#	          'Newick_utils' : ['evolbioinfo/newick_utilities:v1.6',       '/data" -w "/data'],
-#	          'Parsnp'       : ['quay.io/biocontainers/parsnp:1.5.3--he513fc3_0', '/data" -w "/data'],
-#	          'Picard'       : ['broadinstitute/picard:2.18.2',            '/usr/working'],
-#	          'Qualimap'     : ['pegi3s/qualimap:2.2.1',                   '/data" -w "/data'],
-#	          'Quast'        : ['staphb/quast:5.0.2',                      '/data'],
-#	          'Samtools'     : ['staphb/samtools',                         '/data'],     
-#	          'SPAdes'       : ['staphb/spades:3.12.0',                    '/data'],
-#	          'Trimmomatic'  : ['staphb/trimmomatic',                      '/data']
+#	          'BCFtools'     : ['docker://biocontainers/bcftools:v1.9-1-deb_cv1',   '/data'],
+#	          'BWA'          : ['docker://staphb/bwa',                              '/data'],
+#	          'FastQC'       : ['docker://staphb/fastqc:0.11.8',                    '/data'],
+#	          'Freebayes'    : ['docker://wgspipeline/freebayes:v0.0.1',            '/data" -w "/data'],
+#	          'Kraken'       : ['docker://staphb/kraken:1.1.1',                     '/data'],
+#	          'Mash'         : ['docker://staphb/mash:2.2',                         '/data'],
+#	          'Newick_utils' : ['docker://evolbioinfo/newick_utilities:v1.6',       '/data" -w "/data'],
+#	          'Parsnp'       : ['docker://quay.io/biocontainers/parsnp:1.5.3--he513fc3_0', '/data" -w "/data'],
+#	          'Picard'       : ['docker://broadinstitute/picard:2.18.2',            '/usr/working'],
+#	          'Qualimap'     : ['docker://pegi3s/qualimap:2.2.1',                   '/data" -w "/data'],
+#	          'Quast'        : ['docker://staphb/quast:5.0.2',                      '/data'],
+#	          'Samtools'     : ['docker://staphb/samtools',                         '/data'],     
+#	          'SPAdes'       : ['docker://staphb/spades:3.12.0',                    '/data'],
+#	          'Trimmomatic'  : ['docker://staphb/trimmomatic',                      '/data']
 #               }
 
 
 # images used to validate the pipeline (except Mash)
+# Darian - Added docker:// to the beginning of them all to be able to run with singularity
     DO_IMAGES = {
-	          'BCFtools'     : ['biocontainers/bcftools:v1.9-1-deb_cv1',   '/data'],
-	          'BWA'          : ['staphb/bwa:0.7.17',                       '/data'],
-	          'FastQC'       : ['staphb/fastqc:0.11.8',                    '/data'],
-	          'Freebayes'    : ['wgspipeline/freebayes:v0.0.1',            '/data" -w "/data'],
-	          'Kraken'       : ['staphb/kraken:1.1.1',                     '/data'],
-	          'Mash'         : ['staphb/mash:2.1',                         '/data'],
-	          'Newick_utils' : ['evolbioinfo/newick_utilities:v1.6',       '/data" -w "/data'],
-	          'Parsnp'       : ['quay.io/biocontainers/parsnp:1.5.3--he513fc3_0', '/data" -w "/data'],
-	          'Picard'       : ['broadinstitute/picard:2.18.2',            '/usr/working'],
-	          'Qualimap'     : ['pegi3s/qualimap:2.2.1',                   '/data" -w "/data'],
-	          'Quast'        : ['staphb/quast:5.0.2',                      '/data'],
-	          'Samtools'     : ['staphb/samtools:1.9',                         '/data'],     
-	          'SPAdes'       : ['staphb/spades:3.12.0',                    '/data'],
-	          'Trimmomatic'  : ['staphb/trimmomatic:0.39',                 '/data'],
-              'VCFlib'       : ['quay.io/biocontainers/vcflib:1.0.1--hd2e4403_1',  '/data" -w "/data']
+	          'BCFtools'     : ['docker://biocontainers/bcftools:v1.9-1-deb_cv1',   '/data'],
+	          'BWA'          : ['docker://staphb/bwa:0.7.17',                       '/data'],
+	          'FastQC'       : ['docker://staphb/fastqc:0.11.8',                    '/data'],
+	          'Freebayes'    : ['docker://wgspipeline/freebayes:v0.0.1',            '/data" -w "/data'],
+	          'Kraken'       : ['docker://staphb/kraken:1.1.1',                     '/data'],
+	          'Mash'         : ['docker://staphb/mash:2.1',                         '/data'],
+	          'Newick_utils' : ['docker://evolbioinfo/newick_utilities:v1.6',       '/data" -w "/data'],
+	          'Parsnp'       : ['docker://quay.io/biocontainers/parsnp:1.5.3--he513fc3_0', '/data" -w "/data'],
+	          'Picard'       : ['docker://broadinstitute/picard:2.18.2',            '/usr/working'],
+	          'Qualimap'     : ['docker://pegi3s/qualimap:2.2.1',                   '/data" -w "/data'],
+	          'Quast'        : ['docker://staphb/quast:5.0.2',                      '/data'],
+	          'Samtools'     : ['docker://staphb/samtools:1.9',                         '/data'],     
+	          'SPAdes'       : ['docker://staphb/spades:3.12.0',                    '/data'],
+	          'Trimmomatic'  : ['docker://staphb/trimmomatic:0.39',                 '/data'],
+              'VCFlib'       : ['docker://quay.io/biocontainers/vcflib:1.0.1--hd2e4403_1',  '/data" -w "/data']
                }
     
     return DO_IMAGES

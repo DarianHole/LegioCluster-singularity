@@ -103,11 +103,17 @@ def run_samtools_faidx(work_dir, SS_dir, ref_fa_file):
 
     print('\nrunning: Samtools faidx')
     
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + BASE_PATH + REF_dir + SS_dir\
-            + ':' + Samtools_WorkingDir + '" '\
-            + '-i ' + Samtools_image + ' samtools faidx '\
-            + ref_fa_file
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + BASE_PATH + REF_dir + SS_dir\
+    #         + ':' + Samtools_WorkingDir + '" '\
+    #         + '-i ' + Samtools_image + ' samtools faidx '\
+    #         + ref_fa_file
+    
+    run_dir = BASE_PATH + REF_dir + SS_dir
+    base_cmd = (
+        f'samtools faidx {ref_fa_file}'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Samtools_image, base_cmd)
 
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True)     
 
@@ -136,14 +142,24 @@ def run_freebayes(work_dir, ref_fa_file, SS_dir, suffix):
 
     print('\nrunning: Freebayes')
     
-    command = 'docker run'\
-            + ' -v "' + BASE_PATH\
-            + ':' + Freebayes_WorkingDir + '" '\
-            + '-i ' + Freebayes_image + ' freebayes '\
-            + '-f ' + REF_dir + SS_dir + ref_fa_file + ' '\
-            + '-p 1 '\
-            + TEMP_dir + work_dir + 'marked_duplicates' + suffix + '.bam '\
-            + '> ' + BASE_PATH + TEMP_dir + work_dir + 'freebayes_all.vcf'
+    # command = 'docker run'\
+    #         + ' -v "' + BASE_PATH\
+    #         + ':' + Freebayes_WorkingDir + '" '\
+    #         + '-i ' + Freebayes_image + ' freebayes '\
+    #         + '-f ' + REF_dir + SS_dir + ref_fa_file + ' '\
+    #         + '-p 1 '\
+    #         + TEMP_dir + work_dir + 'marked_duplicates' + suffix + '.bam '\
+    #         + '> ' + BASE_PATH + TEMP_dir + work_dir + 'freebayes_all.vcf'
+    
+    run_dir = BASE_PATH
+    base_cmd = (
+        f'freebayes '
+        f'-f {REF_dir + SS_dir + ref_fa_file} '
+        f'-p 1 '
+        f'{TEMP_dir + work_dir}marked_duplicates{suffix}.bam '
+        f'> {BASE_PATH + TEMP_dir + work_dir}freebayes_all.vcf'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Freebayes_image, base_cmd)
 
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True)     
 
@@ -175,17 +191,32 @@ def run_vcffilter(work_dir, DP_max):
     # hard filter implemented as per Erik Garrison (see command):
     # SAF > 0 & SAR > 0   # remove alleles that are only seen on one strand
 
-    command = 'docker run'\
-            + ' -v "' + BASE_PATH\
-            + ':' + VCFlib_WorkingDir + '" '\
-            + '-i ' + VCFlib_image + ' vcffilter '\
-            + '-f  "QUAL > ' + str(QUAL_threshold) + ' '\
-            + '& DP > ' + str(DP_min) + ' & DP < ' + str(DP_max) + ' '\
-            + '& QA > ' + str(QA_threshold) + ' '\
-            + '& SAF > 0 & SAR > 0 ' \
-            + '& AO > ' + str(AO_DP_ratio) + ' * DP" '\
-            + TEMP_dir + work_dir + 'freebayes_all.vcf '\
-            + '> ' + BASE_PATH + TEMP_dir + work_dir + 'freebayes.vcf'
+    # command = 'docker run'\
+    #         + ' -v "' + BASE_PATH\
+    #         + ':' + VCFlib_WorkingDir + '" '\
+    #         + '-i ' + VCFlib_image + ' vcffilter '\
+    #         + '-f  "QUAL > ' + str(QUAL_threshold) + ' '\
+    #         + '& DP > ' + str(DP_min) + ' & DP < ' + str(DP_max) + ' '\
+    #         + '& QA > ' + str(QA_threshold) + ' '\
+    #         + '& SAF > 0 & SAR > 0 ' \
+    #         + '& AO > ' + str(AO_DP_ratio) + ' * DP" '\
+    #         + TEMP_dir + work_dir + 'freebayes_all.vcf '\
+    #         + '> ' + BASE_PATH + TEMP_dir + work_dir + 'freebayes.vcf'
+    
+    run_dir = BASE_PATH
+    base_cmd = (
+        f'vcffilter '
+        f'-f  "QUAL > {str(QUAL_threshold)} '
+        f'& DP > {str(DP_min)} '
+        f'& DP < {str(DP_max)} '
+        f'& QA > {str(QA_threshold)} '
+        f'& SAF > 0 '
+        f'& SAR > 0 ' 
+        f'& AO > {str(AO_DP_ratio)} * DP" '
+        f'{TEMP_dir + work_dir}freebayes_all.vcf '
+        f'> {BASE_PATH + TEMP_dir + work_dir}freebayes.vcf'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, VCFlib_image, base_cmd)
 
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True)     
 

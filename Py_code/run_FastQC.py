@@ -83,12 +83,20 @@ def run_fastqc(work_dir, proc_reads):
 
     print('\nrunning: FastQC')
         
-    command  = 'docker run --rm=True -u $(id -u):$(id -g) '\
-             + '-v "' + BASE_PATH + TEMP_dir + work_dir \
-             + ':' + FastQC_WorkingDir + '" '\
-             + '-i ' + FastQC_image + ' fastqc '\
-             + '-d temp/ '\
-             + proc_reads
+    # command  = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #          + '-v "' + BASE_PATH + TEMP_dir + work_dir \
+    #          + ':' + FastQC_WorkingDir + '" '\
+    #          + '-i ' + FastQC_image + ' fastqc '\
+    #          + '-d temp/ '\
+    #          + proc_reads
+             
+    run_dir = BASE_PATH + TEMP_dir + work_dir
+    base_cmd = (
+        f'fastqc '
+        f'-d temp/ '
+        f'{proc_reads}'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, FastQC_image, base_cmd)
              
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True)          
     

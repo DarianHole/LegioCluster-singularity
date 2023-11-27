@@ -62,11 +62,18 @@ def run_qualimap(work_dir, suffix):
 
     print('\nrunning: Qualimap')
 
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + BASE_PATH + TEMP_dir + work_dir\
-            + ':' + Qualimap_WorkingDir + '" '\
-            + '-i ' + Qualimap_image + ' qualimap bamqc '\
-            + '-bam marked_duplicates' + suffix + '.bam'
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + BASE_PATH + TEMP_dir + work_dir\
+    #         + ':' + Qualimap_WorkingDir + '" '\
+    #         + '-i ' + Qualimap_image + ' qualimap bamqc '\
+    #         + '-bam marked_duplicates' + suffix + '.bam'
+    
+    run_dir = BASE_PATH + TEMP_dir + work_dir
+    base_cmd = (
+        f'qualimap bamqc '
+        f'-bam marked_duplicates{suffix}.bam'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Qualimap_image, base_cmd)
 
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True) 
 

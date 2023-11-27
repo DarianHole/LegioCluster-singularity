@@ -280,7 +280,9 @@ def main(user_input_file):
         
         
     # pulls most of the docker images, if needed 
-    toolshed.run_docker_pull()
+    # Darian - Adjusted to pull singularity images defined instead
+    # Darian - Doesn't work at the moment so bleh
+    # toolshed.run_singularity_pull()
 
     # data for Kraken speciation, phylogenetic tree, and summary table
     lo_phylo_tree_data = []
@@ -338,14 +340,16 @@ def main(user_input_file):
             # increase count for next isolate
             count += 1
             # empty memory of docker containers
-            toolshed.reset_docker('some')   
+            # Darian - Commented out as I am not sure if singularity has this issue
+            # toolshed.reset_docker('some')   
             
         
 
     # all jobs completed: remove all docker images and containers since Kraken
     # needs a lot of space
-    if RESET_DOCKER:
-        toolshed.reset_docker('all') 
+    # Darian - Again, commenting out for now. May need to adjust later if images are causing issues
+    # if RESET_DOCKER:
+    #     toolshed.reset_docker('all') 
     
     # data to be processed after individual isolates have finished
     print('\nPost-processing:\nsp_abbr, isolate, work_dir, ref_name:')
@@ -360,15 +364,18 @@ def main(user_input_file):
     if lo_phylo_tree_data != []:
         # determine species for each contig (memeory intensive)
         run_Kraken.main(lo_phylo_tree_data)
-        if RESET_DOCKER:
-            toolshed.reset_docker('all')
+        # Darian - same as above, will reassess if issue with images and mem
+        # if RESET_DOCKER:
+        #     toolshed.reset_docker('all')
+
         # phylogenetic tree for newly added isolates
         run_Parsnp.main(THREADS, lo_phylo_tree_data)
         
  
+    # Darian - same as above again again... we really like to reset containers
     # remove docker images and containers
-    if RESET_DOCKER:
-        toolshed.reset_docker('all')    
+    # if RESET_DOCKER:
+    #     toolshed.reset_docker('all')    
     
     print('\nAll pipeline runs completed!\nHave a nice day.\n')
 
@@ -386,5 +393,3 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         input_file = sys.argv[1]
         main(input_file)
-
-
