@@ -126,9 +126,9 @@ def run_bwa_mem(work_dir, THREADS, SS_dir, ref_fa_file, suffix):
     base_cmd = (
         f'bwa mem -t {THREADS} '
         f'{REF_dir + SS_dir + ref_fa_file} '
-        f'{TEMP_dir + work_dir + "paired_reads_1.fq"} '
-        f'{TEMP_dir + work_dir + "paired_reads_2.fq"} '
-        f'-o {TEMP_dir + work_dir + "bwa_mapped" + suffix + ".sam"}'
+        f'{TEMP_dir + work_dir}paired_reads_1.fq '
+        f'{TEMP_dir + work_dir}paired_reads_2.fq '
+        f'-o {TEMP_dir + work_dir}bwa_mapped{suffix}.sam'
     )
     command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, BWA_image, base_cmd)
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True)     
@@ -168,8 +168,8 @@ def run_samtools_sort(work_dir, THREADS, suffix):
     run_dir = BASE_PATH + TEMP_dir + work_dir
     base_cmd = (
         f'samtools sort --threads {THREADS} '
-        f'-o {"bwa_mapped" + suffix + ".bam"} '
-        f'{"bwa_mapped" + suffix + ".sam"}'
+        f'-o bwa_mapped{suffix}.bam '
+        f'bwa_mapped{suffix}.sam'
     )
     command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Samtools_image, base_cmd)
 
@@ -247,9 +247,9 @@ def run_mark_duplicates(work_dir, suffix):
             
     run_dir = BASE_PATH + TEMP_dir + work_dir
     base_cmd = (
-        f'MarkDuplicates {"I=bwa_mapped" + suffix + ".bam"} '
-        f'"O=marked_duplicates" + {suffix} + ".bam" '
-        f'"M=marked_dup_metrics" + {suffix} + ".txt" '
+        f'MarkDuplicates I=bwa_mapped{suffix}.bam '
+        f'O=marked_duplicates{suffix}.bam '
+        f'M=marked_dup_metrics{suffix}.txt '
     )
     command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Picard_image, base_cmd)
 
@@ -334,8 +334,8 @@ def run_bcftools_mpileup(work_dir, ref_fa_file, THREADS, SS_dir, suffix):
         f'-Ou '
         f'--threads {THREADS} '
         f'-f {REF_dir + SS_dir + ref_fa_file} '
-        f'-o {TEMP_dir + work_dir + "mpileup" + suffix + ".bcf"} '
-        f'{TEMP_dir + work_dir + "marked_duplicates" + suffix + ".bam"}'
+        f'-o {TEMP_dir + work_dir}mpileup{suffix}.bcf '
+        f'{TEMP_dir + work_dir}marked_duplicates{suffix}.bam'
     )
     command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, BCFtools_image, base_cmd)
 
@@ -376,8 +376,8 @@ def run_bcftools_view(THREADS, work_dir, suffix):
     base_cmd = (
         f'bcftools view '
         f'--threads {THREADS} '
-        f'-o {"mpileup" + suffix + ".vcf"} '
-        f'{"mpileup" + suffix + ".bcf"}'
+        f'-o mpileup{suffix}.vcf '
+        f'mpileup{suffix}.bcf'
     )
     command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, BCFtools_image, base_cmd)
 
@@ -418,7 +418,7 @@ def run_samtools_flagstat(work_dir, THREADS, suffix, MAPPED_THRESHOLD):
     base_cmd = (
         f'samtools flagstat '
         f'--threads {THREADS} '
-        f'{"marked_duplicates" + suffix + ".bam"}'
+        f'marked_duplicates{suffix}.bam'
     )
     command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Samtools_image, base_cmd)
 
@@ -472,7 +472,7 @@ def run_samtools_idxstats(work_dir, THREADS, suffix):
     base_cmd = (
         f'samtools idxstats '
         f'--threads {THREADS} '
-        f'{"marked_duplicates" + suffix + ".bam"}'
+        f'marked_duplicates{suffix}.bam'
     )
     command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Samtools_image, base_cmd)
 
@@ -527,7 +527,7 @@ def run_samtools_depth(work_dir, THREADS, suffix):
     run_dir = BASE_PATH + TEMP_dir + work_dir
     base_cmd = (
         f'samtools depth '
-        f'-aa {"marked_duplicates" + suffix + ".bam"} '
+        f'-aa marked_duplicates{suffix}.bam '
         f'> {BASE_PATH + TEMP_dir + work_dir}/temp/samtools_depth{suffix}.txt'
     )
     command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Samtools_image, base_cmd)
