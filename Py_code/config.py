@@ -94,6 +94,7 @@ def get_DO_IMAGES():
 
 # images used to validate the pipeline (except Mash)
 # Darian - Added docker:// to the beginning of them all to be able to run with singularity
+# Darian - Adjusted picard to  https://depot.galaxyproject.org/singularity/picard:3.1.1--hdfd78af_0
     DO_IMAGES = {
 	          'BCFtools'     : ['docker://biocontainers/bcftools:v1.9-1-deb_cv1',   '/data'],
 	          'BWA'          : ['docker://staphb/bwa:0.7.17',                       '/data'],
@@ -103,7 +104,7 @@ def get_DO_IMAGES():
 	          'Mash'         : ['docker://staphb/mash:2.1',                         '/data'],
 	          'Newick_utils' : ['docker://evolbioinfo/newick_utilities:v1.6',       '/data" -w "/data'],
 	          'Parsnp'       : ['docker://quay.io/biocontainers/parsnp:1.5.3--he513fc3_0', '/data" -w "/data'],
-	          'Picard'       : ['docker://broadinstitute/picard:2.18.2',            '/usr/working'],
+	          'Picard'       : ['https://depot.galaxyproject.org/singularity/picard:3.1.1--hdfd78af_0', '/usr/working'],
 	          'Qualimap'     : ['docker://pegi3s/qualimap:2.2.1',                   '/data" -w "/data'],
 	          'Quast'        : ['docker://staphb/quast:5.0.2',                      '/data'],
 	          'Samtools'     : ['docker://staphb/samtools:1.9',                         '/data'],     

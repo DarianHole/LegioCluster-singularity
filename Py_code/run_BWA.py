@@ -244,14 +244,15 @@ def run_mark_duplicates(work_dir, suffix):
     #         + 'I=bwa_mapped' + suffix + '.bam ' \
     #         + 'O=marked_duplicates' + suffix + '.bam ' \
     #         + 'M=marked_dup_metrics' + suffix + '.txt'    
-            
+
     run_dir = BASE_PATH + TEMP_dir + work_dir
     base_cmd = (
-        f'MarkDuplicates I=bwa_mapped{suffix}.bam '
-        f'O=marked_duplicates{suffix}.bam '
-        f'M=marked_dup_metrics{suffix}.txt '
+        f'picard -Xmx4096M MarkDuplicates '
+        f'--INPUT bwa_mapped{suffix}.bam '
+        f'--OUTPUT marked_duplicates{suffix}.bam '
+        f'--METRICS_FILE marked_dup_metrics{suffix}.txt'
     )
-    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Picard_image, base_cmd)
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Picard_image, base_cmd, picard=True)
 
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True)     
 

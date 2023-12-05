@@ -525,9 +525,8 @@ def create_singularity_cmd(base_path, run_dir, image, cmd):
     '''
     Build singularity command
     '''
-    # Create command using the bind path, image_location and cmd
-    #  May need to re-eval the '' quotes for the command as some commands were wrapped with ""
-    full_cmd = f"singularity exec --bind {base_path} {image} /bin/bash -c 'cd {run_dir} ; {cmd}'"
+    # Create command using the bind path, working dir, image name and cmd
+    full_cmd = f"singularity exec --bind {base_path} --pwd {run_dir} {image} {cmd}"
     return full_cmd
 
 ###############################################################################
