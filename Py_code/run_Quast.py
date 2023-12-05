@@ -66,14 +66,23 @@ def run_quast(work_dir, SS_dir, ref_fa_file, check_seq_file):
 
     print('\nrunning: Quast')
 
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + BASE_PATH +\
-            ':' + Quast_WorkingDir + '" '\
-            + '-i ' + Quast_image + ' quast.py '\
-            + '-o temp/' + work_dir + 'quast/ '\
-            + '-R ' + REF_dir + SS_dir + ref_fa_file\
-            + ' --fast '\
-            + TEMP_dir + work_dir + check_seq_file
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + BASE_PATH +\
+    #         ':' + Quast_WorkingDir + '" '\
+    #         + '-i ' + Quast_image + ' quast.py '\
+    #         + '-o temp/' + work_dir + 'quast/ '\
+    #         + '-R ' + REF_dir + SS_dir + ref_fa_file\
+    #         + ' --fast '\
+    #         + TEMP_dir + work_dir + check_seq_file
+    
+    run_dir = BASE_PATH
+    base_cmd = (
+        f'quast.py '
+        f'-o temp/{work_dir}quast/ '
+        f'-R {REF_dir + SS_dir + ref_fa_file} '
+        f'--fast {TEMP_dir + work_dir + check_seq_file}'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Quast_image, base_cmd)
 
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True) 
 

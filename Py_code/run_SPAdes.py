@@ -98,15 +98,26 @@ def run_spades(work_dir, THREADS, MEMORY, max_read_len):
     else:
         k_param = ' -k 21,33,55,77'         
    
-    command  = 'docker run --rm=True -u $(id -u):$(id -g) '\
-             + '-v "' + BASE_PATH + TEMP_dir + work_dir\
-             + ':' + SPAdes_WorkingDir + '" '\
-             + '-i ' + SPAdes_image + ' spades.py '\
-             + '-1 paired_reads_1.fq '\
-             + '-2 paired_reads_2.fq '\
-             + k_param\
-             + ' --careful --cov-cutoff auto '\
-             + '-o SPAdes'
+    # command  = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #          + '-v "' + BASE_PATH + TEMP_dir + work_dir\
+    #          + ':' + SPAdes_WorkingDir + '" '\
+    #          + '-i ' + SPAdes_image + ' spades.py '\
+    #          + '-1 paired_reads_1.fq '\
+    #          + '-2 paired_reads_2.fq '\
+    #          + k_param\
+    #          + ' --careful --cov-cutoff auto '\
+    #          + '-o SPAdes'
+    
+    run_dir = BASE_PATH + TEMP_dir + work_dir
+    base_cmd = (
+        f'spades.py '
+        f'-1 paired_reads_1.fq '
+        f'-2 paired_reads_2.fq '
+        f'{k_param} '
+        f'--careful --cov-cutoff auto '
+        f'-o SPAdes'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, SPAdes_image, base_cmd)
                  
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True)
         

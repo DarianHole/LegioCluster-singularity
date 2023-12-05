@@ -79,13 +79,23 @@ def run_Kraken(work_dir):
     # that's the database that comes with the docker image
     KRAKEN_DATABASE = '/kraken-database/minikraken_20171013_4GB'
     
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + BASE_PATH + OUTPUT_dir + work_dir\
-            + ':' + Kraken_WorkingDir + '" '\
-            + '-i ' + Kraken_image + ' kraken '\
-            + '--preload --db ' +  KRAKEN_DATABASE + ' '\
-            + 'SPAdes_contigs.fa '\
-            + '--output kraken_out.txt'
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + BASE_PATH + OUTPUT_dir + work_dir\
+    #         + ':' + Kraken_WorkingDir + '" '\
+    #         + '-i ' + Kraken_image + ' kraken '\
+    #         + '--preload --db ' +  KRAKEN_DATABASE + ' '\
+    #         + 'SPAdes_contigs.fa '\
+    #         + '--output kraken_out.txt'
+    
+    run_dir = BASE_PATH + OUTPUT_dir + work_dir
+    base_cmd = (
+        f'kraken '
+        f'--preload '
+        f'--db {KRAKEN_DATABASE} '
+        f'SPAdes_contigs.fa '
+        f'--output kraken_out.txt'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Kraken_image, base_cmd)
 
     with open(BASE_PATH + OUTPUT_dir + work_dir + 'log.txt', 'a') as log_file:
         print('\nKraken:\n', command, file=log_file)
@@ -116,13 +126,22 @@ def run_Kraken_translate(work_dir):
     # that's the database that comes with the docker image
     KRAKEN_DATABASE = '/kraken-database/minikraken_20171013_4GB'
 
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + BASE_PATH + OUTPUT_dir + work_dir\
-            + ':' + Kraken_WorkingDir + '" '\
-            + '-i ' + Kraken_image + ' kraken-translate '\
-            + '--db ' +  KRAKEN_DATABASE + ' '\
-            + 'kraken_out.txt '\
-            + '> ' + BASE_PATH + OUTPUT_dir + work_dir + 'kraken_res.txt'
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + BASE_PATH + OUTPUT_dir + work_dir\
+    #         + ':' + Kraken_WorkingDir + '" '\
+    #         + '-i ' + Kraken_image + ' kraken-translate '\
+    #         + '--db ' +  KRAKEN_DATABASE + ' '\
+    #         + 'kraken_out.txt '\
+    #         + '> ' + BASE_PATH + OUTPUT_dir + work_dir + 'kraken_res.txt'
+    
+    run_dir = BASE_PATH + OUTPUT_dir + work_dir
+    base_cmd = (
+        f'kraken-translate '
+        f'--db {KRAKEN_DATABASE} '
+        f'kraken_out.txt '
+        f'> {BASE_PATH + OUTPUT_dir + work_dir}kraken_res.txt'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Kraken_image, base_cmd)
 
     with open(BASE_PATH + OUTPUT_dir + work_dir + 'log.txt', 'a') as log_file:
         print('\nKraken-translate:\n', command, file=log_file)

@@ -499,9 +499,34 @@ def run_docker_pull():
     
     
 
+def run_singularity_pull():
+    '''
+    Downloads (pulls) all singularity images (programs) in the list, except some 
+    that will be used after all individual samples have been run (Parsnp) or
+    that are mempry intensive (Kraken).
+    
+    Downloads to ~/.singularity and makes it if it doesn't exist
+    '''
+    # Darian - Check for singularity directory to pull to 
+    #  I am too lazy to code in an option to adjust this for now
+    #  And I do not remember if an env variable affects this so hopefully not :)
+    #  DOES NOT WORK ATM - Boo
+    if not os.path.exists('~/.singularity'):
+        os.mkdir('~/.singularity')
+    base_cmd = 'singularity pull '
+    DO_IMAGES = config.get_DO_IMAGES()
+    
+    for program in DO_IMAGES.keys():
+        if program not in ['Kraken','Parsnp']:
+            command = base_cmd + '--dir ~/.singularity ' + DO_IMAGES[program][0]
+            run_subprocess('', command, use_logging=False)
+
+def create_singularity_cmd(base_path, run_dir, image, cmd):
+    '''
+    Build singularity command
+    '''
+    # Create command using the bind path, working dir, image name and cmd
+    full_cmd = f"singularity exec --bind {base_path} --pwd {run_dir} {image} {cmd}"
+    return full_cmd
 
 ###############################################################################
-
-
-
- 

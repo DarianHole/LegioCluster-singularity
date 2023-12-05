@@ -179,15 +179,26 @@ def run_parsnp(THREADS, work_dir, seed, isolate, include_all):
     if include_all:
         force_all = '-c '
         
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + BASE_PATH\
-            + ':' + Parsnp_WorkingDir + '" '\
-            + '-i ' + Parsnp_image + ' parsnp '\
-            + '-d ' + GENOMES_dir + seed + ' '\
-            + '-r ' + GENOMES_dir + seed + parsnp_reference + ' '\
-            + '-o ' + TEMP_dir + 'parsnp/' + seed + ' '\
-            + force_all\
-            + '-v -p ' + THREADS
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + BASE_PATH\
+    #         + ':' + Parsnp_WorkingDir + '" '\
+    #         + '-i ' + Parsnp_image + ' parsnp '\
+    #         + '-d ' + GENOMES_dir + seed + ' '\
+    #         + '-r ' + GENOMES_dir + seed + parsnp_reference + ' '\
+    #         + '-o ' + TEMP_dir + 'parsnp/' + seed + ' '\
+    #         + force_all\
+    #         + '-v -p ' + THREADS
+    
+    run_dir = BASE_PATH
+    base_cmd = (
+        f'parsnp '
+        f'-d {GENOMES_dir + seed} '
+        f'-r {GENOMES_dir + seed + parsnp_reference} '
+        f'-o {TEMP_dir}parsnp/{seed} '
+        f'force_all '
+        f'-v -p {THREADS}'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Parsnp_image, base_cmd)
 
     with open(BASE_PATH + OUTPUT_dir + work_dir + 'log.txt', 'a') as log_file:
         print('\nParsnp:\n', command, file=log_file)
@@ -257,11 +268,17 @@ def run_nw_display(seed, work_dir):
 
     # Note that evolbioinfo/newick_utilities:v1.6 uses "WorkingDir": ""
     # Note: no need to call up 'nw_diplay'
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + BASE_PATH + TEMP_dir + 'parsnp/' + seed\
-            + ':' + NU_WorkingDir + '" '\
-            + '-i ' + NU_image + ' '\
-            + 'parsnp.tree'
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + BASE_PATH + TEMP_dir + 'parsnp/' + seed\
+    #         + ':' + NU_WorkingDir + '" '\
+    #         + '-i ' + NU_image + ' '\
+    #         + 'parsnp.tree'
+    
+    run_dir = BASE_PATH + TEMP_dir + 'parsnp/' + seed
+    base_cmd = (
+        f'nw_diplay parsnp.tree'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, NU_image, base_cmd)
 
     with open(BASE_PATH + OUTPUT_dir + work_dir + 'log.txt', 'a') as log_file:
         print('\nNewick display:\n', command, file=log_file)
@@ -314,13 +331,23 @@ def run_nw_display_svg(seed, work_dir):
 
     # Note that evolbioinfo/newick_utilities:v1.6 uses "WorkingDir": ""
     # Note: no need to call up 'nw_diplay'
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + BASE_PATH + TEMP_dir + 'parsnp/' + seed\
-            + ':' + NU_WorkingDir + '" '\
-            + '-i ' + NU_image + ' '\
-            + '-s -w 700 -b opacity:0 '\
-            + '-o parsnp_ornament.map '\
-            + 'parsnp.tree'
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + BASE_PATH + TEMP_dir + 'parsnp/' + seed\
+    #         + ':' + NU_WorkingDir + '" '\
+    #         + '-i ' + NU_image + ' '\
+    #         + '-s -w 700 -b opacity:0 '\
+    #         + '-o parsnp_ornament.map '\
+    #         + 'parsnp.tree'
+    
+    run_dir = BASE_PATH + TEMP_dir + 'parsnp/' + seed
+    base_cmd = (
+        f'nw_diplay '
+        f'-s -w 700 '
+        f'-b opacity:0 '
+        f'-o parsnp_ornament.map '
+        f'parsnp.tree'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, NU_image, base_cmd)
 
     with open(BASE_PATH + OUTPUT_dir + work_dir + 'log.txt', 'a') as log_file:
         print('\nNewick display:\n', command, file=log_file)

@@ -74,12 +74,15 @@ def run_bwa_index(work_dir, SS_dir, ref_fa_file):
     '''
 
     print('\nrunning: BWA index')
-
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + BASE_PATH + REF_dir + SS_dir\
-            + ':' + BWA_WorkingDir + '" '\
-            + '-i ' + BWA_image + ' bwa index '\
-            + ref_fa_file
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + BASE_PATH + REF_dir + SS_dir\
+    #         + ':' + BWA_WorkingDir + '" '\
+    #         + '-i ' + BWA_image + ' bwa index '\
+    #         + ref_fa_file
+    
+    run_dir = BASE_PATH + REF_dir + SS_dir
+    base_cmd = f'bwa index {ref_fa_file}'
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, BWA_image, base_cmd)
 
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True) 
 
@@ -109,16 +112,25 @@ def run_bwa_mem(work_dir, THREADS, SS_dir, ref_fa_file, suffix):
 
     print('\nrunning: BWA mem')
     
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + BASE_PATH\
-            + ':' + BWA_WorkingDir + '" '\
-            + '-i ' + BWA_image + ' bwa mem '\
-            + '-t ' + THREADS + ' '\
-            + REF_dir + SS_dir + ref_fa_file + ' '\
-            + TEMP_dir + work_dir + 'paired_reads_1.fq '\
-            + TEMP_dir + work_dir + 'paired_reads_2.fq '\
-            + '-o ' + TEMP_dir + work_dir + 'bwa_mapped' + suffix + '.sam'
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + BASE_PATH\
+    #         + ':' + BWA_WorkingDir + '" '\
+    #         + '-i ' + BWA_image + ' bwa mem '\
+    #         + '-t ' + THREADS + ' '\
+    #         + REF_dir + SS_dir + ref_fa_file + ' '\
+    #         + TEMP_dir + work_dir + 'paired_reads_1.fq '\
+    #         + TEMP_dir + work_dir + 'paired_reads_2.fq '\
+    #         + '-o ' + TEMP_dir + work_dir + 'bwa_mapped' + suffix + '.sam'
 
+    run_dir = BASE_PATH
+    base_cmd = (
+        f'bwa mem -t {THREADS} '
+        f'{REF_dir + SS_dir + ref_fa_file} '
+        f'{TEMP_dir + work_dir}paired_reads_1.fq '
+        f'{TEMP_dir + work_dir}paired_reads_2.fq '
+        f'-o {TEMP_dir + work_dir}bwa_mapped{suffix}.sam'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, BWA_image, base_cmd)
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True)     
 
     with open(BASE_PATH + TEMP_dir + work_dir + 'log.txt', 'a') as log_file:
@@ -145,13 +157,21 @@ def run_samtools_sort(work_dir, THREADS, suffix):
 
     print('\nrunning: Samtools sort')
         
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + BASE_PATH + TEMP_dir + work_dir\
-            + ':' + Samtools_WorkingDir + '" '\
-            + '-i ' + Samtools_image + ' samtools sort '\
-            + '--threads ' + THREADS + ' '\
-            + '-o bwa_mapped' + suffix + '.bam '\
-            + 'bwa_mapped' + suffix + '.sam'                      
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + BASE_PATH + TEMP_dir + work_dir\
+    #         + ':' + Samtools_WorkingDir + '" '\
+    #         + '-i ' + Samtools_image + ' samtools sort '\
+    #         + '--threads ' + THREADS + ' '\
+    #         + '-o bwa_mapped' + suffix + '.bam '\
+    #         + 'bwa_mapped' + suffix + '.sam'                      
+
+    run_dir = BASE_PATH + TEMP_dir + work_dir
+    base_cmd = (
+        f'samtools sort --threads {THREADS} '
+        f'-o bwa_mapped{suffix}.bam '
+        f'bwa_mapped{suffix}.sam'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Samtools_image, base_cmd)
 
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True)     
 
@@ -180,12 +200,18 @@ def run_samtools_index(work_dir, THREADS, suffix, bam_file):
 
     print('\nrunning: Samtools index')
     
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + BASE_PATH + TEMP_dir + work_dir\
-            + ':' + Samtools_WorkingDir + '" '\
-            + '-i ' + Samtools_image + ' samtools index '\
-            + '-@ ' + THREADS + ' '\
-            + bam_file                      
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + BASE_PATH + TEMP_dir + work_dir\
+    #         + ':' + Samtools_WorkingDir + '" '\
+    #         + '-i ' + Samtools_image + ' samtools index '\
+    #         + '-@ ' + THREADS + ' '\
+    #         + bam_file                      
+    
+    run_dir = BASE_PATH + TEMP_dir + work_dir
+    base_cmd = (
+        f'samtools index -@ {THREADS} {bam_file}'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Samtools_image, base_cmd)
 
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True)     
 
@@ -211,13 +237,22 @@ def run_mark_duplicates(work_dir, suffix):
 
     print('\nrunning: Picard MarkDuplicates')
     
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + BASE_PATH + TEMP_dir + work_dir\
-            + ':' + Picard_WorkingDir + '" '\
-            + '-i ' + Picard_image + ' MarkDuplicates '\
-            + 'I=bwa_mapped' + suffix + '.bam ' \
-            + 'O=marked_duplicates' + suffix + '.bam ' \
-            + 'M=marked_dup_metrics' + suffix + '.txt'    
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + BASE_PATH + TEMP_dir + work_dir\
+    #         + ':' + Picard_WorkingDir + '" '\
+    #         + '-i ' + Picard_image + ' MarkDuplicates '\
+    #         + 'I=bwa_mapped' + suffix + '.bam ' \
+    #         + 'O=marked_duplicates' + suffix + '.bam ' \
+    #         + 'M=marked_dup_metrics' + suffix + '.txt'    
+
+    run_dir = BASE_PATH + TEMP_dir + work_dir
+    base_cmd = (
+        f'picard -Xmx4096M MarkDuplicates '
+        f'--INPUT bwa_mapped{suffix}.bam '
+        f'--OUTPUT marked_duplicates{suffix}.bam '
+        f'--METRICS_FILE marked_dup_metrics{suffix}.txt'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Picard_image, base_cmd)
 
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True)     
 
@@ -243,11 +278,17 @@ def run_samtools_faidx(work_dir, SS_dir, ref_fa_file):
 
     print('\nrunning: Samtools faidx')
     
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + BASE_PATH + REF_dir + SS_dir\
-            + ':' + Samtools_WorkingDir + '" '\
-            + '-i ' + Samtools_image + ' samtools faidx '\
-            + ref_fa_file
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + BASE_PATH + REF_dir + SS_dir\
+    #         + ':' + Samtools_WorkingDir + '" '\
+    #         + '-i ' + Samtools_image + ' samtools faidx '\
+    #         + ref_fa_file
+            
+    run_dir = BASE_PATH + REF_dir + SS_dir
+    base_cmd = (
+        f'samtools faidx {ref_fa_file}'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Samtools_image, base_cmd)
 
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True)     
 
@@ -278,15 +319,26 @@ def run_bcftools_mpileup(work_dir, ref_fa_file, THREADS, SS_dir, suffix):
 
     print('\nrunning: BCFtools mpileup')
 
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + BASE_PATH\
-            + ':' + BCFtools_WorkingDir + '" '\
-            + '-i ' + BCFtools_image + ' bcftools mpileup '\
-            + '-Ou '\
-            + '--threads ' + THREADS + ' '\
-            + '-f ' + REF_dir + SS_dir + ref_fa_file + ' '\
-            + '-o ' + TEMP_dir + work_dir + 'mpileup' + suffix + '.bcf '\
-            + TEMP_dir + work_dir + 'marked_duplicates' + suffix + '.bam'
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + BASE_PATH\
+    #         + ':' + BCFtools_WorkingDir + '" '\
+    #         + '-i ' + BCFtools_image + ' bcftools mpileup '\
+    #         + '-Ou '\
+    #         + '--threads ' + THREADS + ' '\
+    #         + '-f ' + REF_dir + SS_dir + ref_fa_file + ' '\
+    #         + '-o ' + TEMP_dir + work_dir + 'mpileup' + suffix + '.bcf '\
+    #         + TEMP_dir + work_dir + 'marked_duplicates' + suffix + '.bam'
+    
+    run_dir = BASE_PATH
+    base_cmd = (
+        f'bcftools mpileup '
+        f'-Ou '
+        f'--threads {THREADS} '
+        f'-f {REF_dir + SS_dir + ref_fa_file} '
+        f'-o {TEMP_dir + work_dir}mpileup{suffix}.bcf '
+        f'{TEMP_dir + work_dir}marked_duplicates{suffix}.bam'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, BCFtools_image, base_cmd)
 
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True)     
 
@@ -313,13 +365,22 @@ def run_bcftools_view(THREADS, work_dir, suffix):
 
     print('\nrunning: BCFtools view')
 
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + BASE_PATH + TEMP_dir + work_dir\
-            + ':' + BCFtools_WorkingDir + '" '\
-            + '-i ' + BCFtools_image + ' bcftools view '\
-            + '--threads ' + THREADS + ' '\
-            + '-o mpileup' + suffix + '.vcf '\
-            + 'mpileup' + suffix + '.bcf'
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + BASE_PATH + TEMP_dir + work_dir\
+    #         + ':' + BCFtools_WorkingDir + '" '\
+    #         + '-i ' + BCFtools_image + ' bcftools view '\
+    #         + '--threads ' + THREADS + ' '\
+    #         + '-o mpileup' + suffix + '.vcf '\
+    #         + 'mpileup' + suffix + '.bcf'
+            
+    run_dir = BASE_PATH + TEMP_dir + work_dir
+    base_cmd = (
+        f'bcftools view '
+        f'--threads {THREADS} '
+        f'-o mpileup{suffix}.vcf '
+        f'mpileup{suffix}.bcf'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, BCFtools_image, base_cmd)
 
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True)     
 
@@ -347,12 +408,20 @@ def run_samtools_flagstat(work_dir, THREADS, suffix, MAPPED_THRESHOLD):
 
     print('\nrunning: Samtools flagstat')
         
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + BASE_PATH + TEMP_dir + work_dir\
-            + ':' + Samtools_WorkingDir + '" '\
-            + '-i ' + Samtools_image + ' samtools flagstat '\
-            + '--threads ' + THREADS + ' '\
-            + 'marked_duplicates' + suffix + '.bam'
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + BASE_PATH + TEMP_dir + work_dir\
+    #         + ':' + Samtools_WorkingDir + '" '\
+    #         + '-i ' + Samtools_image + ' samtools flagstat '\
+    #         + '--threads ' + THREADS + ' '\
+    #         + 'marked_duplicates' + suffix + '.bam'
+            
+    run_dir = BASE_PATH + TEMP_dir + work_dir
+    base_cmd = (
+        f'samtools flagstat '
+        f'--threads {THREADS} '
+        f'marked_duplicates{suffix}.bam'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Samtools_image, base_cmd)
 
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True)   
     
@@ -393,12 +462,20 @@ def run_samtools_idxstats(work_dir, THREADS, suffix):
 
     print('\nrunning: Samtools idxstats')
         
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + BASE_PATH + TEMP_dir + work_dir\
-            + ':' + Samtools_WorkingDir + '" '\
-            + '-i ' + Samtools_image + ' samtools idxstats '\
-            + '--threads ' + THREADS + ' '\
-            + 'marked_duplicates' + suffix + '.bam'
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + BASE_PATH + TEMP_dir + work_dir\
+    #         + ':' + Samtools_WorkingDir + '" '\
+    #         + '-i ' + Samtools_image + ' samtools idxstats '\
+    #         + '--threads ' + THREADS + ' '\
+    #         + 'marked_duplicates' + suffix + '.bam'
+    
+    run_dir = BASE_PATH + TEMP_dir + work_dir
+    base_cmd = (
+        f'samtools idxstats '
+        f'--threads {THREADS} '
+        f'marked_duplicates{suffix}.bam'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Samtools_image, base_cmd)
 
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True)  
     
@@ -439,14 +516,22 @@ def run_samtools_depth(work_dir, THREADS, suffix):
 
     print('\nrunning: Samtools depth')
         
-    command = 'docker run --rm=True -u $(id -u):$(id -g) '\
-            + '-v "' + BASE_PATH + TEMP_dir + work_dir\
-            + ':' + Samtools_WorkingDir + '" '\
-            + '-i ' + Samtools_image + ' samtools depth '\
-            + '-aa '\
-            + 'marked_duplicates' + suffix + '.bam '\
-            + '> ' + BASE_PATH + TEMP_dir + work_dir\
-            + 'temp/samtools_depth' + suffix + '.txt'
+    # command = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #         + '-v "' + BASE_PATH + TEMP_dir + work_dir\
+    #         + ':' + Samtools_WorkingDir + '" '\
+    #         + '-i ' + Samtools_image + ' samtools depth '\
+    #         + '-aa '\
+    #         + 'marked_duplicates' + suffix + '.bam '\
+    #         + '> ' + BASE_PATH + TEMP_dir + work_dir\
+    #         + 'temp/samtools_depth' + suffix + '.txt'
+    
+    run_dir = BASE_PATH + TEMP_dir + work_dir
+    base_cmd = (
+        f'samtools depth '
+        f'-aa marked_duplicates{suffix}.bam '
+        f'> {BASE_PATH + TEMP_dir + work_dir}/temp/samtools_depth{suffix}.txt'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Samtools_image, base_cmd)
 
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True)  
     

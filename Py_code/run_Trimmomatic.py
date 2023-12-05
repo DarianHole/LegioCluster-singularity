@@ -214,16 +214,28 @@ def run_trimmomatic(work_dir, F_READS, R_READS, THREADS, MinLen='100'):
                  + 'paired_reads_2.fq '\
                  + 'temp/unpaired_reads_2.fq ' 
 
-    command  = 'docker run --rm=True -u $(id -u):$(id -g) '\
-             + '-v "' + BASE_PATH + TEMP_dir + work_dir\
-             + ':' + Trimmomatic_WorkingDir + '" '\
-             + '-i ' + Trimmomatic_image + ' trimmomatic PE '\
-             + INPUT_FILES\
-             + OUTPUT_FILES\
-             + '-threads ' + THREADS + ' '\
-             + '-trimlog temp/trimmomatic_log.txt '\
-             + 'ILLUMINACLIP:NexteraPE-PE.fa:2:30:10 '\
-             + 'LEADING:3 TRAILING:3 SLIDINGWINDOW:4:20 MINLEN:' + MinLen
+    # command  = 'docker run --rm=True -u $(id -u):$(id -g) '\
+    #          + '-v "' + BASE_PATH + TEMP_dir + work_dir\
+    #          + ':' + Trimmomatic_WorkingDir + '" '\
+    #          + '-i ' + Trimmomatic_image + ' trimmomatic PE '\
+    #          + INPUT_FILES\
+    #          + OUTPUT_FILES\
+    #          + '-threads ' + THREADS + ' '\
+    #          + '-trimlog temp/trimmomatic_log.txt '\
+    #          + 'ILLUMINACLIP:NexteraPE-PE.fa:2:30:10 '\
+    #          + 'LEADING:3 TRAILING:3 SLIDINGWINDOW:4:20 MINLEN:' + MinLen
+    
+    run_dir = BASE_PATH + TEMP_dir + work_dir
+    base_cmd = (
+        f'trimmomatic PE '
+        f'{INPUT_FILES} '
+        f'{OUTPUT_FILES} '
+        f'-threads {THREADS} '
+        f'-trimlog temp/trimmomatic_log.txt '
+        f'ILLUMINACLIP:NexteraPE-PE.fa:2:30:10 '
+        f'LEADING:3 TRAILING:3 SLIDINGWINDOW:4:20 MINLEN:{MinLen}'
+    )
+    command = toolshed.create_singularity_cmd(BASE_PATH, run_dir, Trimmomatic_image, base_cmd)
                  
     ReturnCode, StdOut, StdErr = toolshed.run_subprocess(work_dir, command, True)
      
